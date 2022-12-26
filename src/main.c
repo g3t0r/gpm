@@ -85,6 +85,19 @@ int main()
 
             printf("property: %s\n", property);
             free(property);
+
+            int value_start_idx;
+            if(buf[equals_pos + 1] == ' ') {
+                value_start_idx = equals_pos + 2;
+            } else {
+                equals_pos + 1;
+            }
+
+            char *value = calloc(sizeof(char), strlen(buf) + 1 - value_start_idx);
+            strncpy(value, buf + skip + value_start_idx, strlen(buf) - value_start_idx);
+            value[strlen(value) - 1] = '\0';
+            printf("value: %s\n", value);
+            
         }
         fputs((const char *)buf, tf);
     }
