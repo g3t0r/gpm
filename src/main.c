@@ -3,18 +3,17 @@
 #include <string.h>
 #include <errno.h>
 
-#define BUF_SIZE 4096
+#include "parse-utils.h"
 
-#define CORRUPTED_GIT_CONFIG_MSG "Corrupted .git/config file\n"
+#define BUF_SIZE 4096
+#define MSG_CORRUPTED_GIT_CONFIG "Corrupted .git/config file\n"
+#define CHAR_SPACE ' '
+#define CHAR_LEFT_SQUARE_BRACKET '['
+#define CHAR_RIGHT_SQUARE_BRACKET ']'
+#define CHAR_EQUALS '='
 
 #define TRUE 1
 #define FALSE 0
-
-struct user_info
-{
-    const char *name;
-    const char *email;
-} typedef user_info;
 
 void throw_err(const char *msg)
 {
@@ -24,15 +23,15 @@ void throw_err(const char *msg)
 
 int header_line(const char *buf)
 {
-    return (buf[0] == '[') ? 1 : 0;
+    return (buf[0] == CHAR_LEFT_SQUARE_BRACKET) ? 1 : 0;
 }
 
 int contains_header(const char *buf, const char *header_val)
 {
-    int closing_brace_idx = (int)(strchr(buf, (int)']') - buf);
+    int closing_brace_idx = (int)(strchr(buf, (int)CHAR_RIGHT_SQUARE_BRACKET) - buf);
     if (closing_brace_idx < 0)
     {
-        throw_err(CORRUPTED_GIT_CONFIG_MSG);
+        throw_err(MSG_CORRUPTED_GIT_CONFIG);
     }
     char *header = calloc(sizeof(char), sizeof(closing_brace_idx + 2));
     strncpy(header, buf, closing_brace_idx + 1);
@@ -53,52 +52,44 @@ int main()
 
     char *buf = calloc(sizeof(char), BUF_SIZE);
 
-    user_info info;
-
     int user_found = 0;
-
+    char* fgets_result = fgets(buf, BUF_SIZE, cf);
     // writing file until [user] found
-    while (fgets(buf, BUF_SIZE, cf))
+    while (fgets_result)
     {
-        if (!user_found && header_line(buf) && contains_header(buf, "[user]"))
+
+        // switch(get_line_type(buf)) {
+        //     case HEADER:
+        //         printf("Header: %s", buf);
+        //         break;
+            
+        //     case PROPERTY:
+        //         printf("Property: %s", buf);
+        //         break;
+
+        //     case OTHER:
+        //         printf("Other: %s", buf);
+        // }
+
+
+
+
+        if (!user_found && header_line(buf))
         {
-
-            user_found = 1;
+            // user_found = 1;
             fgets(buf, BUF_SIZE, cf);
-
-            int skip = 0;
-            while (buf[skip] == ' ')
-                skip++;
-
-            printf("skip: %d\n", skip);
-            printf("buf: %s", buf);
-            int equals_pos = strchr(buf + skip, (int)'=') - buf - skip;
-            printf("equals-pos: %d\n", equals_pos);
-            char *property = calloc(sizeof(char), equals_pos);
-            strncpy(property, buf + skip, equals_pos);
-
-            if (property[equals_pos] == ' ')
-                property[equals_pos] = '\0';
-
-            printf("property: %s\n", property);
-            free(property);
-
-            int value_start_idx;
-            if (buf[equals_pos + 1] == ' ')
-            {
-                value_start_idx = equals_pos + 2;
-            }
-            else
-            {
-                value_start_idx = equals_pos + 1;
-            }
-
-            char *value = calloc(sizeof(char), strlen(buf) + 1 - value_start_idx);
-            strncpy(value, buf + skip + value_start_idx, strlen(buf) - value_start_idx);
-            value[strlen(value) - 1] = '\0';
-            printf("value: %s\n", value);
+            property *prop = parse_property(buf);
+            printf("%s:%s[NEXT]", prop->name, prop->value);
+            free(prop->name);
+            free(prop->value);
+            fgets(buf, BUF_SIZE, cf);
+            prop = parse_property(buf);
+            printf("%s:%s[NEXT]", prop->name, prop->value);
         }
         fputs((const char *)buf, tf);
+
+    fgets_result = fgets(buf, BUF_SIZE, cf);
+
     }
 
     return 0;
