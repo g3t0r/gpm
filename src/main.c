@@ -10,9 +10,10 @@
 #define TRUE 1
 #define FALSE 0
 
-struct user_info {
-    const char* name;
-    const char* email;
+struct user_info
+{
+    const char *name;
+    const char *email;
 } typedef user_info;
 
 void throw_err(const char *msg)
@@ -43,10 +44,6 @@ int contains_header(const char *buf, const char *header_val)
     }
     free(header);
     return 0;
-}
-
-char* get_property(const char* buf) {
-    
 }
 
 int main()
@@ -80,24 +77,26 @@ int main()
             char *property = calloc(sizeof(char), equals_pos);
             strncpy(property, buf + skip, equals_pos);
 
-            if(property[equals_pos] == ' ')
+            if (property[equals_pos] == ' ')
                 property[equals_pos] = '\0';
 
             printf("property: %s\n", property);
             free(property);
 
             int value_start_idx;
-            if(buf[equals_pos + 1] == ' ') {
+            if (buf[equals_pos + 1] == ' ')
+            {
                 value_start_idx = equals_pos + 2;
-            } else {
-                equals_pos + 1;
+            }
+            else
+            {
+                value_start_idx = equals_pos + 1;
             }
 
             char *value = calloc(sizeof(char), strlen(buf) + 1 - value_start_idx);
             strncpy(value, buf + skip + value_start_idx, strlen(buf) - value_start_idx);
             value[strlen(value) - 1] = '\0';
             printf("value: %s\n", value);
-            
         }
         fputs((const char *)buf, tf);
     }
