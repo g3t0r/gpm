@@ -12,11 +12,23 @@ int is_whitespace(char c)
 char *parse_header(char *buf)
 {
     int length_without_terminating = strlen(buf);
-    char *header = calloc(sizeof(char), length_without_terminating);
+    char *header = malloc(sizeof(*header) * length_without_terminating);
     // copying without \n, already null terminated because of calloc
     strncpy(header, buf, length_without_terminating - 1);
+    header[length_without_terminating -1] = 0;
 
     return header;
+}
+
+void write_property(char *dst, property *prop)
+{
+    strncat(dst, "\t", strlen(prop->name));
+    strncat(dst, prop->name, strlen(prop->name));
+    strncat(dst, " ", 2);
+    strncat(dst, "=", 2);
+    strncat(dst, " ", 2);
+    strncat(dst, prop->value, strlen(prop->value));
+    strncat(dst, "\n", 2);
 }
 
 property *parse_property(char *buf)

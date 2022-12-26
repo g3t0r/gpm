@@ -65,12 +65,30 @@ int main()
         case HEADER:
         {
             char * header = parse_header(buf);
-            printf("header: %s\n", header);
+            if(strcmp("[user]", header) == 0) {
+                inside_user_header = 1;
+            } else {
+                inside_user_header = 0;
+            }
             free(header);
             break;
         }
 
         case PROPERTY:
+            if(inside_user_header) {
+                property* p = parse_property(buf);
+                if(strcmp("name", p->name) == 0) {
+                    free(p->value);
+                    p->value = calloc(sizeof(char), 20);
+                    strcat(p->value, "Changed name");
+                    memset(buf, 0, BUF_SIZE);
+                    write_property(buf, p);
+                    copy = 1;
+                }
+                free(p->name);
+                free((char *)p->value);
+                free(p);
+            }
             break;
 
         case OTHER:
