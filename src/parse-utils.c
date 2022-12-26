@@ -2,9 +2,21 @@
 #include <string.h>
 #include "parse-utils.h"
 
+#include <stdio.h>
+
 int is_whitespace(char c)
 {
     return (c == CHAR_SPACE || c == CHAR_TAB) ? 1 : 0;
+}
+
+char *parse_header(char *buf)
+{
+    int length_without_terminating = strlen(buf);
+    char *header = calloc(sizeof(char), length_without_terminating);
+    // copying without \n, already null terminated because of calloc
+    strncpy(header, buf, length_without_terminating - 1);
+
+    return header;
 }
 
 property *parse_property(char *buf)
@@ -23,7 +35,7 @@ property *parse_property(char *buf)
     if (is_whitespace(prop->name[equals_pos - 1]))
         prop->name[equals_pos - 1] = '\0';
 
-    int value_start_idx = equals_pos + (is_whitespace(buf[equals_pos + 1 + skip])? 2 : 1);
+    int value_start_idx = equals_pos + (is_whitespace(buf[equals_pos + 1 + skip]) ? 2 : 1);
 
     prop->value = calloc(sizeof(char), strlen(buf) + 1 - value_start_idx);
     strncpy(prop->value, buf + skip + value_start_idx, strlen(buf) - value_start_idx);

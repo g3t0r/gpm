@@ -22,6 +22,8 @@ enum LINE_TYPE
 
 int is_whitespace(char c);
 
+char *parse_header(char *buf);
+
 LINE_TYPE get_line_type(const char *buf);
 
 property *parse_property(char *buf);

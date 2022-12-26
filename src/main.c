@@ -53,43 +53,34 @@ int main()
     char *buf = calloc(sizeof(char), BUF_SIZE);
 
     int user_found = 0;
-    char* fgets_result = fgets(buf, BUF_SIZE, cf);
+    char *fgets_result = fgets(buf, BUF_SIZE, cf);
     // writing file until [user] found
+    int inside_user_header = 0;
     while (fgets_result)
     {
+        int copy = 1;
 
-        // switch(get_line_type(buf)) {
-        //     case HEADER:
-        //         printf("Header: %s", buf);
-        //         break;
-            
-        //     case PROPERTY:
-        //         printf("Property: %s", buf);
-        //         break;
-
-        //     case OTHER:
-        //         printf("Other: %s", buf);
-        // }
-
-
-
-
-        if (!user_found && header_line(buf))
+        switch (get_line_type(buf))
         {
-            // user_found = 1;
-            fgets(buf, BUF_SIZE, cf);
-            property *prop = parse_property(buf);
-            printf("%s:%s[NEXT]", prop->name, prop->value);
-            free(prop->name);
-            free(prop->value);
-            fgets(buf, BUF_SIZE, cf);
-            prop = parse_property(buf);
-            printf("%s:%s[NEXT]", prop->name, prop->value);
+        case HEADER:
+        {
+            char * header = parse_header(buf);
+            printf("header: %s\n", header);
+            free(header);
+            break;
         }
-        fputs((const char *)buf, tf);
 
-    fgets_result = fgets(buf, BUF_SIZE, cf);
+        case PROPERTY:
+            break;
 
+        case OTHER:
+            break;
+        }
+
+        if (copy)
+            fputs((const char *)buf, tf);
+
+        fgets_result = fgets(buf, BUF_SIZE, cf);
     }
 
     return 0;
