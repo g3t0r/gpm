@@ -3,6 +3,9 @@ CC=gcc
 
 PROG=build
 
+build-pr:
+	$(CC) $(LIBS) src/error-handling.c src/profile-reader.c -o profile-reader.o
+
 all: $(PROG)
 
 install: $(PROG)
